@@ -109,9 +109,9 @@ export default function LandingPage() {
           </div>
 
           <div className="w-full">
-            <button className="w-full md:w-auto bg-[#FF9800] hover:bg-orange-600 text-white text-xl font-bold py-4 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 active:scale-95">
+            <a href="https://pay.hotmart.com/D104060214E?bid=1769286265552" className="block md:inline-block text-center w-full md:w-auto bg-[#FF9800] hover:bg-orange-600 text-white text-xl font-bold py-4 px-8 rounded-full shadow-lg transition-transform transform hover:scale-105 active:scale-95">
               Sí, Quiero Controlar Mi Ansiedad Ahora - Porque merezco vivir sin miedo
-            </button>
+            </a>
           </div>
         </div>
       </section>
@@ -218,10 +218,10 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <button className="w-full md:w-auto bg-[#FF9800] hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-md transition-colors flex flex-col items-center justify-center leading-tight">
+          <a href="https://pay.hotmart.com/D104060214E?bid=1769286265552" className="w-full md:w-auto bg-[#FF9800] hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-full shadow-md transition-colors flex flex-col items-center justify-center leading-tight">
             <span>Quiero Acceso a la Guía Ahora</span>
             <span className="text-[10px] font-normal opacity-90 block md:hidden lg:inline uppercase tracking-wide mt-0.5">Precio especial de lanzamiento</span>
-          </button>
+          </a>
         </div>
       </footer>
     </div>
