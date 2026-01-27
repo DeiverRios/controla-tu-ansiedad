@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Wind, Book, AlertCircle, Heart, X, Save, Calendar, Activity, Map, Users, ShieldCheck, BrainCircuit, Coffee, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import AccessGate from '../../components/AccessGate';
 
 // --- TIPOS ---
 type Note = {
@@ -353,154 +354,156 @@ export default function DashboardPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#F0FFF4] font-sans text-gray-800 p-4 md:p-6 relative pb-20">
-            {/* ALERT DE GUARDADO */}
-            <AnimatePresence>
-                {showSavedAlert && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -50 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -50 }}
-                        className="fixed top-6 left-1/2 -translate-x-1/2 z-[60] bg-green-500 text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2"
-                    >
-                        <Heart className="w-5 h-5 fill-white" /> Nota guardada con éxito
-                    </motion.div>
-                )}
-            </AnimatePresence>
+        <AccessGate>
+            <div className="min-h-screen bg-[#F0FFF4] font-sans text-gray-800 p-4 md:p-6 relative pb-20">
+                {/* ALERT DE GUARDADO */}
+                <AnimatePresence>
+                    {showSavedAlert && (
+                        <motion.div
+                            initial={{ opacity: 0, y: -50 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -50 }}
+                            className="fixed top-6 left-1/2 -translate-x-1/2 z-[60] bg-green-500 text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-2"
+                        >
+                            <Heart className="w-5 h-5 fill-white" /> Nota guardada con éxito
+                        </motion.div>
+                    )}
+                </AnimatePresence>
 
-            {/* HEADER */}
-            <header className="max-w-md mx-auto mb-8 pt-4">
-                <div className="flex items-center gap-2 mb-1">
-                    <Heart className="w-5 h-5 text-[#4CAF50] fill-current" />
-                    <span className="font-bold text-gray-700 tracking-wide">Controla Tu Ansiedad</span>
-                </div>
-                <h1 className="text-2xl font-bold text-[#2E7D32]">
-                    Hola, estás en tu espacio seguro.
-                </h1>
-            </header>
-
-            <main className="max-w-md mx-auto space-y-8">
-                {/* TARJETA DE EMERGENCIA (SOS) */}
-                <section className="bg-white rounded-2xl shadow-lg border-l-8 border-red-400 p-6 text-center transform hover:scale-[1.02] transition-transform duration-200">
-                    <div className="flex justify-center mb-4 text-red-500">
-                        <AlertCircle className="w-12 h-12" />
+                {/* HEADER */}
+                <header className="max-w-md mx-auto mb-8 pt-4">
+                    <div className="flex items-center gap-2 mb-1">
+                        <Heart className="w-5 h-5 text-[#4CAF50] fill-current" />
+                        <span className="font-bold text-gray-700 tracking-wide">Controla Tu Ansiedad</span>
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900 mb-6">¿Tienes una crisis ahora?</h2>
-                    <button
-                        onClick={() => setIsSOSOpen(true)}
-                        className="w-full bg-red-400 hover:bg-red-500 text-white text-lg font-bold py-4 px-6 rounded-xl shadow-md transition-colors animate-pulse"
-                    >
-                        ACTIVAR BOTÓN DE PÁNICO SOS
-                    </button>
-                </section>
+                    <h1 className="text-2xl font-bold text-[#2E7D32]">
+                        Hola, estás en tu espacio seguro.
+                    </h1>
+                </header>
 
-                {/* HERRAMIENTAS RÁPIDAS */}
-                <section className="grid grid-cols-2 gap-4">
-                    {/* Tarjeta 1: Respiración */}
-                    <div className="bg-white p-5 rounded-xl shadow-sm border border-[#4CAF50]/20 flex flex-col items-center text-center">
-                        <div className="bg-[#E8F5E9] p-3 rounded-full mb-3 text-[#4CAF50]">
-                            <Wind className="w-6 h-6" />
+                <main className="max-w-md mx-auto space-y-8">
+                    {/* TARJETA DE EMERGENCIA (SOS) */}
+                    <section className="bg-white rounded-2xl shadow-lg border-l-8 border-red-400 p-6 text-center transform hover:scale-[1.02] transition-transform duration-200">
+                        <div className="flex justify-center mb-4 text-red-500">
+                            <AlertCircle className="w-12 h-12" />
                         </div>
-                        <h3 className="font-bold text-gray-800 mb-1">Respiración Guiada</h3>
-                        <p className="text-xs text-gray-500 mb-4">Bajar revoluciones en 3 min</p>
+                        <h2 className="text-xl font-bold text-gray-900 mb-6">¿Tienes una crisis ahora?</h2>
                         <button
                             onClick={() => setIsSOSOpen(true)}
-                            className="w-full mt-auto bg-[#4CAF50] hover:bg-[#388E3C] text-white text-sm font-semibold py-2 px-4 rounded-lg transition-colors"
+                            className="w-full bg-red-400 hover:bg-red-500 text-white text-lg font-bold py-4 px-6 rounded-xl shadow-md transition-colors animate-pulse"
                         >
-                            Iniciar
+                            ACTIVAR BOTÓN DE PÁNICO SOS
                         </button>
-                    </div>
+                    </section>
 
-                    {/* Tarjeta 2: Diario */}
-                    <div className="bg-white p-5 rounded-xl shadow-sm border border-[#4CAF50]/20 flex flex-col items-center text-center">
-                        <div className="bg-[#FFF3E0] p-3 rounded-full mb-3 text-[#FF9800]">
-                            <Book className="w-6 h-6" />
-                        </div>
-                        <h3 className="font-bold text-gray-800 mb-1">Diario de Gratitud</h3>
-                        <p className="text-xs text-gray-500 mb-4">Registra un pensamiento positivo</p>
-                        <button
-                            onClick={() => setIsJournalOpen(true)}
-                            className="w-full mt-auto bg-[#FF9800] hover:bg-orange-600 text-white text-sm font-semibold py-2 px-4 rounded-lg transition-colors"
-                        >
-                            Escribir
-                        </button>
-                    </div>
-                </section>
-
-                {/* MÓDULOS EDUCACIONALES */}
-                <section>
-                    <h2 className="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
-                        <Book className="w-5 h-5 text-[#2E7D32]" /> Tus Guías y Recursos
-                    </h2>
-                    <div className="grid grid-cols-2 gap-3">
-                        {MODULES_DATA.map((module) => (
-                            <motion.div
-                                key={module.id}
-                                whileHover={{ scale: 1.03 }}
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => setSelectedModule(module)}
-                                className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 cursor-pointer flex flex-col items-center text-center h-full justify-between"
+                    {/* HERRAMIENTAS RÁPIDAS */}
+                    <section className="grid grid-cols-2 gap-4">
+                        {/* Tarjeta 1: Respiración */}
+                        <div className="bg-white p-5 rounded-xl shadow-sm border border-[#4CAF50]/20 flex flex-col items-center text-center">
+                            <div className="bg-[#E8F5E9] p-3 rounded-full mb-3 text-[#4CAF50]">
+                                <Wind className="w-6 h-6" />
+                            </div>
+                            <h3 className="font-bold text-gray-800 mb-1">Respiración Guiada</h3>
+                            <p className="text-xs text-gray-500 mb-4">Bajar revoluciones en 3 min</p>
+                            <button
+                                onClick={() => setIsSOSOpen(true)}
+                                className="w-full mt-auto bg-[#4CAF50] hover:bg-[#388E3C] text-white text-sm font-semibold py-2 px-4 rounded-lg transition-colors"
                             >
-                                <div className={`p-3 rounded-full mb-3 ${module.color}`}>
-                                    <module.icon className="w-6 h-6" />
-                                </div>
-                                <h3 className="font-semibold text-gray-800 text-sm">{module.title}</h3>
-                                <div className="mt-2 text-xs text-gray-400 font-medium">LEER</div>
-                            </motion.div>
-                        ))}
-                    </div>
-                </section>
+                                Iniciar
+                            </button>
+                        </div>
 
-                {/* BARRA DE PROGRESO */}
-                <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <div className="flex justify-between items-end mb-2">
-                        <span className="text-sm font-medium text-gray-600">Días consecutivos sin crisis</span>
-                        <span className="text-2xl font-bold text-[#4CAF50]">0</span>
-                    </div>
-                    <div className="w-full bg-gray-100 rounded-full h-2.5">
-                        <div className="bg-[#4CAF50] h-2.5 rounded-full w-[5%] transition-all duration-500"></div>
-                    </div>
-                    <p className="text-xs text-gray-400 mt-2 text-center">Cero es un excelente lugar para empezar.</p>
-                </section>
+                        {/* Tarjeta 2: Diario */}
+                        <div className="bg-white p-5 rounded-xl shadow-sm border border-[#4CAF50]/20 flex flex-col items-center text-center">
+                            <div className="bg-[#FFF3E0] p-3 rounded-full mb-3 text-[#FF9800]">
+                                <Book className="w-6 h-6" />
+                            </div>
+                            <h3 className="font-bold text-gray-800 mb-1">Diario de Gratitud</h3>
+                            <p className="text-xs text-gray-500 mb-4">Registra un pensamiento positivo</p>
+                            <button
+                                onClick={() => setIsJournalOpen(true)}
+                                className="w-full mt-auto bg-[#FF9800] hover:bg-orange-600 text-white text-sm font-semibold py-2 px-4 rounded-lg transition-colors"
+                            >
+                                Escribir
+                            </button>
+                        </div>
+                    </section>
 
-                {/* ÚLTIMAS NOTAS */}
-                {notes.length > 0 && (
+                    {/* MÓDULOS EDUCACIONALES */}
                     <section>
-                        <h3 className="text-lg font-bold text-gray-700 mb-3 ml-1 flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-gray-400" /> Tus últimas notas
-                        </h3>
-                        <div className="space-y-3">
-                            {notes.slice(0, 3).map((note) => (
+                        <h2 className="text-lg font-bold text-gray-700 mb-4 flex items-center gap-2">
+                            <Book className="w-5 h-5 text-[#2E7D32]" /> Tus Guías y Recursos
+                        </h2>
+                        <div className="grid grid-cols-2 gap-3">
+                            {MODULES_DATA.map((module) => (
                                 <motion.div
-                                    key={note.id}
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="bg-white p-4 rounded-xl shadow-sm border border-gray-100"
+                                    key={module.id}
+                                    whileHover={{ scale: 1.03 }}
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => setSelectedModule(module)}
+                                    className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 cursor-pointer flex flex-col items-center text-center h-full justify-between"
                                 >
-                                    <p className="text-gray-600 text-sm mb-2 line-clamp-2">"{note.text}"</p>
-                                    <div className="flex items-center text-xs text-gray-400 gap-1">
-                                        <Calendar className="w-3 h-3" />
-                                        {note.date}
+                                    <div className={`p-3 rounded-full mb-3 ${module.color}`}>
+                                        <module.icon className="w-6 h-6" />
                                     </div>
+                                    <h3 className="font-semibold text-gray-800 text-sm">{module.title}</h3>
+                                    <div className="mt-2 text-xs text-gray-400 font-medium">LEER</div>
                                 </motion.div>
                             ))}
                         </div>
                     </section>
-                )}
-            </main>
 
-            {/* MODALES */}
-            <AnimatePresence>
-                {isSOSOpen && (
-                    <SOSModal onClose={() => setIsSOSOpen(false)} />
-                )}
-                {isJournalOpen && (
-                    <JournalModal onClose={() => setIsJournalOpen(false)} onSave={handleSaveNote} />
-                )}
-                {selectedModule && (
-                    <ReadingModal module={selectedModule} onClose={() => setSelectedModule(null)} />
-                )}
-            </AnimatePresence>
-        </div>
+                    {/* BARRA DE PROGRESO */}
+                    <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                        <div className="flex justify-between items-end mb-2">
+                            <span className="text-sm font-medium text-gray-600">Días consecutivos sin crisis</span>
+                            <span className="text-2xl font-bold text-[#4CAF50]">0</span>
+                        </div>
+                        <div className="w-full bg-gray-100 rounded-full h-2.5">
+                            <div className="bg-[#4CAF50] h-2.5 rounded-full w-[5%] transition-all duration-500"></div>
+                        </div>
+                        <p className="text-xs text-gray-400 mt-2 text-center">Cero es un excelente lugar para empezar.</p>
+                    </section>
+
+                    {/* ÚLTIMAS NOTAS */}
+                    {notes.length > 0 && (
+                        <section>
+                            <h3 className="text-lg font-bold text-gray-700 mb-3 ml-1 flex items-center gap-2">
+                                <FileText className="w-4 h-4 text-gray-400" /> Tus últimas notas
+                            </h3>
+                            <div className="space-y-3">
+                                {notes.slice(0, 3).map((note) => (
+                                    <motion.div
+                                        key={note.id}
+                                        initial={{ opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="bg-white p-4 rounded-xl shadow-sm border border-gray-100"
+                                    >
+                                        <p className="text-gray-600 text-sm mb-2 line-clamp-2">"{note.text}"</p>
+                                        <div className="flex items-center text-xs text-gray-400 gap-1">
+                                            <Calendar className="w-3 h-3" />
+                                            {note.date}
+                                        </div>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+                </main>
+
+                {/* MODALES */}
+                <AnimatePresence>
+                    {isSOSOpen && (
+                        <SOSModal onClose={() => setIsSOSOpen(false)} />
+                    )}
+                    {isJournalOpen && (
+                        <JournalModal onClose={() => setIsJournalOpen(false)} onSave={handleSaveNote} />
+                    )}
+                    {selectedModule && (
+                        <ReadingModal module={selectedModule} onClose={() => setSelectedModule(null)} />
+                    )}
+                </AnimatePresence>
+            </div>
+        </AccessGate>
     );
 }
