@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { Wind, Book, AlertCircle, Heart, X, Save, Calendar, Activity, Map, Users, ShieldCheck, BrainCircuit, Coffee, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import AccessGate from '../../components/AccessGate';
+import BreathingModal from '../../components/BreathingModal';
+import StreakCounter from '../../components/StreakCounter';
 
 // --- TIPOS ---
 type Note = {
@@ -316,6 +317,7 @@ const ReadingModal = ({ module, onClose }: { module: Module, onClose: () => void
 // --- PAGINA PRINCIPAL DASHBOARD ---
 export default function DashboardPage() {
     const [isSOSOpen, setIsSOSOpen] = useState(false);
+    const [showBreathing, setShowBreathing] = useState(false);
     const [isJournalOpen, setIsJournalOpen] = useState(false);
     const [selectedModule, setSelectedModule] = useState<Module | null>(null);
     const [notes, setNotes] = useState<Note[]>([]);
@@ -406,7 +408,7 @@ export default function DashboardPage() {
                             <h3 className="font-bold text-gray-800 mb-1">Respiración Guiada</h3>
                             <p className="text-xs text-gray-500 mb-4">Bajar revoluciones en 3 min</p>
                             <button
-                                onClick={() => setIsSOSOpen(true)}
+                                onClick={() => setShowBreathing(true)}
                                 className="w-full mt-auto bg-[#4CAF50] hover:bg-[#388E3C] text-white text-sm font-semibold py-2 px-4 rounded-lg transition-colors"
                             >
                                 Iniciar
@@ -454,16 +456,7 @@ export default function DashboardPage() {
                     </section>
 
                     {/* BARRA DE PROGRESO */}
-                    <section className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                        <div className="flex justify-between items-end mb-2">
-                            <span className="text-sm font-medium text-gray-600">Días consecutivos sin crisis</span>
-                            <span className="text-2xl font-bold text-[#4CAF50]">0</span>
-                        </div>
-                        <div className="w-full bg-gray-100 rounded-full h-2.5">
-                            <div className="bg-[#4CAF50] h-2.5 rounded-full w-[5%] transition-all duration-500"></div>
-                        </div>
-                        <p className="text-xs text-gray-400 mt-2 text-center">Cero es un excelente lugar para empezar.</p>
-                    </section>
+                    <StreakCounter />
 
                     {/* ÚLTIMAS NOTAS */}
                     {notes.length > 0 && (
@@ -501,6 +494,9 @@ export default function DashboardPage() {
                     )}
                     {selectedModule && (
                         <ReadingModal module={selectedModule} onClose={() => setSelectedModule(null)} />
+                    )}
+                    {showBreathing && (
+                        <BreathingModal onClose={() => setShowBreathing(false)} />
                     )}
                 </AnimatePresence>
             </div>
