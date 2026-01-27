@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Wind, Book, AlertCircle, Heart, X, Save, Calendar, Activity, Map, Users, ShieldCheck, BrainCircuit, Coffee, FileText } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import AccessGate from '../../components/AccessGate';
 import BreathingModal from '../../components/BreathingModal';
 import StreakCounter from '../../components/StreakCounter';
 
