@@ -27,7 +27,7 @@ export default function Dashboard() {
                 {showBreathing && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center">
                         {/* Si el componente BreathingModal no maneja el fondo, lo ponemos aquí */}
-                        <BreathingModal />
+                        <BreathingModal onClose={() => setShowBreathing(false)} />
                         {/* Botón de cierre de emergencia por si acaso */}
                         <button
                             onClick={() => setShowBreathing(false)}
