@@ -122,7 +122,7 @@ export default function LandingPage() {
           <h2 className="text-3xl font-bold text-center mb-10 text-[#4CAF50]">Todo Lo Que Obtienes Dentro</h2>
           <div className="grid md:grid-cols-2 gap-4">
             {[
-              "Evaluación de Detonantes (Fase 1)",
+              "Monitor de Progreso (Historial)",
               "Protocolo de Emergencia: Botón de Pánico",
               "Plan de Acción Personalizado",
               "Guía de Desactivación Física",
