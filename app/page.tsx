@@ -71,8 +71,8 @@ export default function LandingPage() {
             <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
               <div className="bg-[#2196F3] text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold flex-shrink-0 shadow-md">1</div>
               <div>
-                <h4 className="text-xl font-bold text-gray-900 mb-2">Evaluación de Emergencia</h4>
-                <p className="text-gray-700">A través de nuestro cuestionario inteligente, identificamos qué tipo de ansiedad te está afectando hoy y cuáles son tus detonantes específicos para no perder tiempo en teorías.</p>
+                <h4 className="text-xl font-bold text-gray-900 mb-2">Monitor de Progreso</h4>
+                <p className="text-gray-700">Lo que no se mide, no se mejora. Visualiza tu recuperación con nuestro contador automático de 'Días de Calma'.</p>
               </div>
             </div>
             <div className="flex flex-col md:flex-row gap-6 items-start md:items-center">
