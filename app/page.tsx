@@ -125,7 +125,7 @@ export default function LandingPage() {
               "Monitor de Progreso (Historial)",
               "Protocolo de Emergencia: Botón de Pánico",
               "Plan de Acción Personalizado",
-              "Guía de Desactivación Física",
+              "Respiración Guiada: Bajar revoluciones en 3 min",
               "Bitácora de Seguimiento de Síntomas",
               "Módulo: Ansiedad Social y Relaciones",
               "Mapa de Reconstrucción de Confianza",
