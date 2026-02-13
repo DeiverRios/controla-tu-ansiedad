@@ -118,6 +118,286 @@ const vaultContent: { [key: string]: React.ReactNode } = {
     )
 };
 
+// --- COMPONENTES EXTERNOS PARA EVITAR RE-RENDER ---
+
+// 1. Modal Onboarding
+const OnboardingModal = ({ onSave, onSkip }: { onSave: (name: string) => void, onSkip: () => void }) => {
+    const [inputValue, setInputValue] = useState("");
+    return (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/95 backdrop-blur-sm p-4 animate-in fade-in duration-300">
+            <div className="bg-white w-[90%] max-w-lg p-8 rounded-3xl shadow-2xl text-center">
+                <h2 className="text-2xl font-bold text-slate-800 mb-4">Bienvenido a tu Espacio Seguro</h2>
+                <p className="text-slate-500 mb-6">Para dirigirnos a ti con cariño, ¿cómo te gusta que te llamen?</p>
+                <input
+                    type="text"
+                    placeholder="Tu nombre o apodo..."
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 mb-6 focus:ring-2 focus:ring-slate-900 focus:outline-none"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && onSave(inputValue)}
+                    autoFocus
+                />
+                <button
+                    onClick={() => onSave(inputValue)}
+                    disabled={!inputValue.trim()}
+                    className="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                    Comenzar
+                </button>
+                <button
+                    onClick={onSkip}
+                    className="mt-4 text-sm text-slate-400 hover:text-slate-600 font-medium"
+                >
+                    Omitir por ahora
+                </button>
+            </div>
+        </div>
+    );
+};
+
+// 2. Modal SOS
+const SOSModal = ({ onClose }: { onClose: () => void }) => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-red-500/95 backdrop-blur-sm p-4 text-white animate-in fade-in zoom-in duration-300">
+        <button
+            onClick={onClose}
+            className="absolute top-6 right-6 bg-white/20 hover:bg-white/30 p-2 rounded-full transition-colors"
+        >
+            <X size={32} />
+        </button>
+        <div className="max-w-2xl w-full text-center space-y-8">
+            <h2 className="text-4xl md:text-5xl font-bold mb-8">Técnica de Aterrizaje</h2>
+            <div className="space-y-6 text-xl md:text-2xl font-medium">
+                <div className="bg-white/10 p-4 rounded-xl backdrop-blur-md">
+                    <span className="block text-5xl font-bold mb-2">5</span>
+                    Cosas que puedes <span className="font-bold underline decoration-white/50">ver</span>
+                </div>
+                <div className="bg-white/10 p-4 rounded-xl backdrop-blur-md">
+                    <span className="block text-5xl font-bold mb-2">4</span>
+                    Cosas que puedes <span className="font-bold underline decoration-white/50">tocar</span>
+                </div>
+                <div className="bg-white/10 p-4 rounded-xl backdrop-blur-md">
+                    <span className="block text-5xl font-bold mb-2">3</span>
+                    Cosas que puedes <span className="font-bold underline decoration-white/50">escuchar</span>
+                </div>
+                <div className="bg-white/10 p-4 rounded-xl backdrop-blur-md">
+                    <span className="block text-5xl font-bold mb-2">2</span>
+                    Cosas que puedes <span className="font-bold underline decoration-white/50">oler</span>
+                </div>
+                <div className="bg-white/10 p-4 rounded-xl backdrop-blur-md">
+                    <span className="block text-5xl font-bold mb-2">1</span>
+                    Cosa que puedes <span className="font-bold underline decoration-white/50">saborear</span>
+                </div>
+            </div>
+            <p className="mt-8 text-white/80">Respira. Estás a salvo.</p>
+        </div>
+    </div>
+);
+
+// 3. Respiración Guiada
+const BreathingTool = ({ onClose }: { onClose: () => void }) => {
+    const [phase, setPhase] = useState<'inhale' | 'hold' | 'exhale' | 'finished'>('inhale');
+    const [cycleTimer, setCycleTimer] = useState(4); // Timer interno del ciclo
+    const [text, setText] = useState('Inhala');
+    const [totalTimeLeft, setTotalTimeLeft] = useState(180); // 3 minutos
+
+    // Efecto del Timer Global (3 min)
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setTotalTimeLeft((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    setPhase('finished');
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
+
+    // Efecto del Ciclo de Respiración (Solo si no ha terminado)
+    useEffect(() => {
+        if (phase === 'finished') return;
+
+        let interval: NodeJS.Timeout;
+        const runCycle = () => {
+            if (phase === 'inhale') {
+                if (cycleTimer > 0) {
+                    setCycleTimer(t => t - 1);
+                } else {
+                    setPhase('hold');
+                    setCycleTimer(7);
+                    setText('Sostén');
+                }
+            } else if (phase === 'hold') {
+                if (cycleTimer > 0) {
+                    setCycleTimer(t => t - 1);
+                } else {
+                    setPhase('exhale');
+                    setCycleTimer(8);
+                    setText('Exhala');
+                }
+            } else if (phase === 'exhale') {
+                if (cycleTimer > 0) {
+                    setCycleTimer(t => t - 1);
+                } else {
+                    setPhase('inhale');
+                    setCycleTimer(4);
+                    setText('Inhala');
+                }
+            }
+        };
+        interval = setInterval(runCycle, 1000);
+        return () => clearInterval(interval);
+    }, [phase, cycleTimer]);
+
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-blue-900/95 backdrop-blur-sm p-4 text-white animate-in fade-in duration-500">
+            <button
+                onClick={onClose}
+                className="absolute top-6 right-6 bg-white/20 hover:bg-white/30 p-2 rounded-full transition-colors"
+            >
+                <X size={32} />
+            </button>
+
+            <h2 className="text-3xl font-bold mb-4 text-blue-100">Respiración 4-7-8</h2>
+
+            <div className="mb-8 px-4 py-1 bg-blue-800/50 rounded-full font-mono text-xl tracking-wider text-blue-200">
+                {formatTime(totalTimeLeft)}
+            </div>
+
+            <div className="relative flex items-center justify-center mb-12">
+                {phase !== 'finished' ? (
+                    <>
+                        <div className={`absolute w-64 h-64 rounded-full border-4 border-white/30 transition-all duration-[4000ms] ease-in-out ${phase === 'inhale' ? 'scale-150 opacity-100' : phase === 'exhale' ? 'scale-100 opacity-50' : 'scale-150 opacity-100'}`} />
+                        <div className={`absolute w-48 h-48 rounded-full bg-white/10 backdrop-blur-md transition-all duration-[4000ms] ease-in-out ${phase === 'inhale' ? 'scale-125' : phase === 'exhale' ? 'scale-75' : 'scale-125'}`} />
+
+                        <div className="z-10 text-center">
+                            <span className="block text-6xl font-bold mb-2">{cycleTimer}</span>
+                            <span className="text-2xl font-light tracking-widest uppercase">{text}</span>
+                        </div>
+                    </>
+                ) : (
+                    <div className="text-center animate-in zoom-in duration-500">
+                        <HeartPulse className="w-24 h-24 mx-auto mb-4 text-emerald-400" />
+                        <h3 className="text-2xl font-bold mb-2">Ciclo completado.</h3>
+                        <p className="text-blue-200">Has recuperado el control.</p>
+                    </div>
+                )}
+            </div>
+
+            <p className="text-blue-200/80 max-w-md text-center">
+                {phase === 'finished'
+                    ? "Puedes cerrar esta ventana cuando te sientas listo."
+                    : "Sigue el ritmo. Tu cuerpo sabe cómo volver a la calma."}
+            </p>
+        </div>
+    );
+};
+
+// 4. Modal Bóveda
+const VaultModal = ({
+    selectedResource,
+    onClose,
+    journalText,
+    setJournalText,
+    onSaveJournal
+}: {
+    selectedResource: { title: string, color: string },
+    onClose: () => void,
+    journalText: string,
+    setJournalText: (text: string) => void,
+    onSaveJournal: () => void
+}) => {
+    const content = vaultContent[selectedResource.title];
+    const isJournal = selectedResource.title === "Bitácora de Síntomas";
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+            <div className="bg-white w-[90%] max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[85vh]">
+                <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 flex-shrink-0">
+                    <div className="flex items-center gap-3">
+                        <h3 className="text-lg font-bold text-slate-800 line-clamp-1">
+                            {selectedResource.title}
+                        </h3>
+                    </div>
+                    <button
+                        onClick={onClose}
+                        className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"
+                    >
+                        <X size={20} className="text-slate-500" />
+                    </button>
+                </div>
+
+                <div className="p-8 overflow-y-auto">
+                    {content ? content : (
+                        <div className="text-center py-8">
+                            <p className="text-slate-400">Contenido próximamente...</p>
+                        </div>
+                    )}
+
+                    {isJournal && (
+                        <div className="mt-8 pt-6 border-t border-slate-100 animate-in slide-in-from-bottom-5 duration-300">
+                            <label className="block text-sm font-semibold text-slate-700 mb-2">
+                                Tu Registro Personal
+                            </label>
+                            <textarea
+                                className="w-full p-4 min-h-[150px] border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:outline-none bg-slate-50 text-slate-700 placeholder:text-slate-400 resize-none font-medium"
+                                placeholder="Escribe aquí qué detonó tu ansiedad hoy y cómo lo manejaste..."
+                                value={journalText}
+                                onChange={(e) => setJournalText(e.target.value)}
+                            />
+                            <button
+                                onClick={onSaveJournal}
+                                className="mt-4 w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-violet-200 flex items-center justify-center gap-2"
+                            >
+                                <Save size={18} />
+                                Guardar Registro
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Componente Tarjeta Simplificado
+function ResourceCard({ icon, title, subtitle, color, onClick }: { icon: React.ReactNode, title: string, subtitle: string, color: string, onClick: () => void }) {
+    const colorClasses: { [key: string]: string } = {
+        indigo: 'hover:border-indigo-200 hover:shadow-indigo-100',
+        violet: 'hover:border-violet-200 hover:shadow-violet-100',
+        emerald: 'hover:border-emerald-200 hover:shadow-emerald-100',
+        amber: 'hover:border-amber-200 hover:shadow-amber-100',
+        pink: 'hover:border-pink-200 hover:shadow-pink-100',
+        cyan: 'hover:border-cyan-200 hover:shadow-cyan-100',
+    };
+
+    return (
+        <div
+            onClick={onClick}
+            className={`bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition-all duration-300 group cursor-pointer ${colorClasses[color] || 'hover:border-gray-200'}`}
+        >
+            <div className="flex items-start justify-between mb-4">
+                <div className="p-3 bg-slate-50 rounded-xl group-hover:scale-110 transition-transform duration-300">
+                    {icon}
+                </div>
+                <button className="text-xs font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-full group-hover:bg-slate-900 group-hover:text-white transition-colors">
+                    Abrir
+                </button>
+            </div>
+            <h3 className="font-bold text-slate-800 mb-1 group-hover:text-slate-900 transition-colors">{title}</h3>
+            <p className="text-sm text-slate-500">{subtitle}</p>
+        </div>
+    );
+}
+
 export default function Dashboard() {
     // --- ESTADOS DE DATOS ---
     const [daysWithoutCrisis, setDaysWithoutCrisis] = useState(0);
@@ -134,7 +414,6 @@ export default function Dashboard() {
     // --- EFECTOS INICIALES ---
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            // 1. Cargar Tracker
             const savedData = localStorage.getItem('anxiety_tracker');
             if (savedData) {
                 const { lastReset } = JSON.parse(savedData);
@@ -146,7 +425,6 @@ export default function Dashboard() {
                 localStorage.setItem('anxiety_tracker', JSON.stringify({ lastReset: today }));
             }
 
-            // 2. Cargar Usuario
             const storedName = localStorage.getItem('userName');
             if (storedName) {
                 setUserName(storedName);
@@ -154,7 +432,6 @@ export default function Dashboard() {
                 setShowOnboarding(true);
             }
 
-            // 3. Cargar Journal
             const savedJournal = localStorage.getItem('anxiety_journal');
             if (savedJournal) {
                 setJournalText(savedJournal);
@@ -192,261 +469,32 @@ export default function Dashboard() {
         alert("Entrada guardada en tu dispositivo seguro.");
     };
 
-    // --- COMPONENTES MODALES ---
-
-    // 1. Modal Onboarding (Nombre)
-    const OnboardingModal = () => {
-        const [inputValue, setInputValue] = useState("");
-        return (
-            <div className="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/95 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-                <div className="bg-white w-[90%] max-w-lg p-8 rounded-3xl shadow-2xl text-center">
-                    <h2 className="text-2xl font-bold text-slate-800 mb-4">Bienvenido a tu Espacio Seguro</h2>
-                    <p className="text-slate-500 mb-6">Para dirigirnos a ti con cariño, ¿cómo te gusta que te llamen?</p>
-                    <input
-                        type="text"
-                        placeholder="Tu nombre o apodo..."
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 mb-6 focus:ring-2 focus:ring-slate-900 focus:outline-none"
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleSaveName(inputValue)}
-                        autoFocus
-                    />
-                    <button
-                        onClick={() => handleSaveName(inputValue)}
-                        disabled={!inputValue.trim()}
-                        className="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    >
-                        Comenzar
-                    </button>
-                    <button
-                        onClick={() => setShowOnboarding(false)}
-                        className="mt-4 text-sm text-slate-400 hover:text-slate-600 font-medium"
-                    >
-                        Omitir por ahora
-                    </button>
-                </div>
-            </div>
-        );
-    };
-
-    // 2. Modal SOS (5-4-3-2-1)
-    const SOSModal = () => (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-red-500/95 backdrop-blur-sm p-4 text-white animate-in fade-in zoom-in duration-300">
-            <button
-                onClick={() => setShowSOS(false)}
-                className="absolute top-6 right-6 bg-white/20 hover:bg-white/30 p-2 rounded-full transition-colors"
-            >
-                <X size={32} />
-            </button>
-            <div className="max-w-2xl w-full text-center space-y-8">
-                <h2 className="text-4xl md:text-5xl font-bold mb-8">Técnica de Aterrizaje</h2>
-                <div className="space-y-6 text-xl md:text-2xl font-medium">
-                    <div className="bg-white/10 p-4 rounded-xl backdrop-blur-md">
-                        <span className="block text-5xl font-bold mb-2">5</span>
-                        Cosas que puedes <span className="font-bold underline decoration-white/50">ver</span>
-                    </div>
-                    <div className="bg-white/10 p-4 rounded-xl backdrop-blur-md">
-                        <span className="block text-5xl font-bold mb-2">4</span>
-                        Cosas que puedes <span className="font-bold underline decoration-white/50">tocar</span>
-                    </div>
-                    <div className="bg-white/10 p-4 rounded-xl backdrop-blur-md">
-                        <span className="block text-5xl font-bold mb-2">3</span>
-                        Cosas que puedes <span className="font-bold underline decoration-white/50">escuchar</span>
-                    </div>
-                    <div className="bg-white/10 p-4 rounded-xl backdrop-blur-md">
-                        <span className="block text-5xl font-bold mb-2">2</span>
-                        Cosas que puedes <span className="font-bold underline decoration-white/50">oler</span>
-                    </div>
-                    <div className="bg-white/10 p-4 rounded-xl backdrop-blur-md">
-                        <span className="block text-5xl font-bold mb-2">1</span>
-                        Cosa que puedes <span className="font-bold underline decoration-white/50">saborear</span>
-                    </div>
-                </div>
-                <p className="mt-8 text-white/80">Respira. Estás a salvo.</p>
-            </div>
-        </div>
-    );
-
-    // 3. Modal Respiración (4-7-8 con Timer)
-    const BreathingTool = () => {
-        const [phase, setPhase] = useState<'inhale' | 'hold' | 'exhale' | 'finished'>('inhale');
-        const [cycleTimer, setCycleTimer] = useState(4); // Timer interno del ciclo
-        const [text, setText] = useState('Inhala');
-        const [totalTimeLeft, setTotalTimeLeft] = useState(180); // 3 minutos
-
-        // Efecto del Timer Global (3 min)
-        useEffect(() => {
-            const timer = setInterval(() => {
-                setTotalTimeLeft((prev) => {
-                    if (prev <= 1) {
-                        clearInterval(timer);
-                        setPhase('finished');
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            }, 1000);
-            return () => clearInterval(timer);
-        }, []);
-
-        // Efecto del Ciclo de Respiración (Solo si no ha terminado)
-        useEffect(() => {
-            if (phase === 'finished') return;
-
-            let interval: NodeJS.Timeout;
-            const runCycle = () => {
-                if (phase === 'inhale') {
-                    if (cycleTimer > 0) {
-                        setCycleTimer(t => t - 1);
-                    } else {
-                        setPhase('hold');
-                        setCycleTimer(7);
-                        setText('Sostén');
-                    }
-                } else if (phase === 'hold') {
-                    if (cycleTimer > 0) {
-                        setCycleTimer(t => t - 1);
-                    } else {
-                        setPhase('exhale');
-                        setCycleTimer(8);
-                        setText('Exhala');
-                    }
-                } else if (phase === 'exhale') {
-                    if (cycleTimer > 0) {
-                        setCycleTimer(t => t - 1);
-                    } else {
-                        setPhase('inhale');
-                        setCycleTimer(4);
-                        setText('Inhala');
-                    }
-                }
-            };
-            interval = setInterval(runCycle, 1000);
-            return () => clearInterval(interval);
-        }, [phase, cycleTimer]);
-
-        // Formateo mm:ss
-        const formatTime = (seconds: number) => {
-            const mins = Math.floor(seconds / 60);
-            const secs = seconds % 60;
-            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        };
-
-        return (
-            <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-blue-900/95 backdrop-blur-sm p-4 text-white animate-in fade-in duration-500">
-                <button
-                    onClick={() => setShowBreathing(false)}
-                    className="absolute top-6 right-6 bg-white/20 hover:bg-white/30 p-2 rounded-full transition-colors"
-                >
-                    <X size={32} />
-                </button>
-
-                <h2 className="text-3xl font-bold mb-4 text-blue-100">Respiración 4-7-8</h2>
-
-                {/* Timer Global */}
-                <div className="mb-8 px-4 py-1 bg-blue-800/50 rounded-full font-mono text-xl tracking-wider text-blue-200">
-                    {formatTime(totalTimeLeft)}
-                </div>
-
-                <div className="relative flex items-center justify-center mb-12">
-                    {phase !== 'finished' ? (
-                        <>
-                            {/* Círculos animados */}
-                            <div className={`absolute w-64 h-64 rounded-full border-4 border-white/30 transition-all duration-[4000ms] ease-in-out ${phase === 'inhale' ? 'scale-150 opacity-100' : phase === 'exhale' ? 'scale-100 opacity-50' : 'scale-150 opacity-100'}`} />
-                            <div className={`absolute w-48 h-48 rounded-full bg-white/10 backdrop-blur-md transition-all duration-[4000ms] ease-in-out ${phase === 'inhale' ? 'scale-125' : phase === 'exhale' ? 'scale-75' : 'scale-125'}`} />
-
-                            <div className="z-10 text-center">
-                                <span className="block text-6xl font-bold mb-2">{cycleTimer}</span>
-                                <span className="text-2xl font-light tracking-widest uppercase">{text}</span>
-                            </div>
-                        </>
-                    ) : (
-                        <div className="text-center animate-in zoom-in duration-500">
-                            <HeartPulse className="w-24 h-24 mx-auto mb-4 text-emerald-400" />
-                            <h3 className="text-2xl font-bold mb-2">Ciclo completado.</h3>
-                            <p className="text-blue-200">Has recuperado el control.</p>
-                        </div>
-                    )}
-                </div>
-
-                <p className="text-blue-200/80 max-w-md text-center">
-                    {phase === 'finished'
-                        ? "Puedes cerrar esta ventana cuando te sientas listo."
-                        : "Sigue el ritmo. Tu cuerpo sabe cómo volver a la calma."}
-                </p>
-            </div>
-        );
-    };
-
-    // 4. Modal Bóveda de Recursos
-    const VaultModal = () => {
-        if (!selectedResource) return null;
-
-        // Obtenemos el contenido del diccionario
-        const content = vaultContent[selectedResource.title];
-
-        // Verificamos si es la tarjeta de "Bitácora de Síntomas" para mostrar el editor
-        const isJournal = selectedResource.title === "Bitácora de Síntomas";
-
-        return (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-                <div className="bg-white w-[90%] max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[85vh]">
-                    <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 flex-shrink-0">
-                        <div className="flex items-center gap-3">
-                            <h3 className="text-lg font-bold text-slate-800 line-clamp-1">
-                                {selectedResource.title}
-                            </h3>
-                        </div>
-                        <button
-                            onClick={() => setSelectedResource(null)}
-                            className="p-2 bg-slate-100 rounded-full hover:bg-slate-200 transition-colors"
-                        >
-                            <X size={20} className="text-slate-500" />
-                        </button>
-                    </div>
-
-                    <div className="p-8 overflow-y-auto">
-                        {content ? (
-                            content
-                        ) : (
-                            <div className="text-center py-8">
-                                <p className="text-slate-400">Contenido próximamente...</p>
-                            </div>
-                        )}
-
-                        {/* ÁREA DE TEXTO INTERACTIVA (SOLO PARA BITÁCORA) */}
-                        {isJournal && (
-                            <div className="mt-8 pt-6 border-t border-slate-100 animate-in slide-in-from-bottom-5 duration-300">
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">
-                                    Tu Registro Personal
-                                </label>
-                                <textarea
-                                    className="w-full p-4 min-h-[150px] border border-slate-200 rounded-xl focus:ring-2 focus:ring-violet-500 focus:outline-none bg-slate-50 text-slate-700 placeholder:text-slate-400 resize-none font-medium"
-                                    placeholder="Escribe aquí qué detonó tu ansiedad hoy y cómo lo manejaste..."
-                                    value={journalText}
-                                    onChange={(e) => setJournalText(e.target.value)}
-                                />
-                                <button
-                                    onClick={handleSaveJournal}
-                                    className="mt-4 w-full bg-violet-600 hover:bg-violet-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-violet-200 flex items-center justify-center gap-2"
-                                >
-                                    <Save size={18} />
-                                    Guardar Registro
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
     return (
         <AccessGate>
-            {showOnboarding && <OnboardingModal />}
-            {showSOS && <SOSModal />}
-            {showBreathing && <BreathingTool />}
-            {selectedResource && <VaultModal />}
+            {showOnboarding && (
+                <OnboardingModal
+                    onSave={handleSaveName}
+                    onSkip={() => setShowOnboarding(false)}
+                />
+            )}
+
+            {showSOS && (
+                <SOSModal onClose={() => setShowSOS(false)} />
+            )}
+
+            {showBreathing && (
+                <BreathingTool onClose={() => setShowBreathing(false)} />
+            )}
+
+            {selectedResource && (
+                <VaultModal
+                    selectedResource={selectedResource}
+                    onClose={() => setSelectedResource(null)}
+                    journalText={journalText}
+                    setJournalText={setJournalText}
+                    onSaveJournal={handleSaveJournal}
+                />
+            )}
 
             <div className="min-h-screen bg-slate-50 p-6 pb-24 font-sans text-slate-800">
 
@@ -481,7 +529,6 @@ export default function Dashboard() {
                             ¿Tuviste una crisis hoy?
                         </button>
 
-                        {/* Gamificación */}
                         <p className="text-xs text-slate-400 font-medium mt-2">
                             Meta: 30 días
                         </p>
@@ -580,35 +627,5 @@ export default function Dashboard() {
                 </div>
             </div>
         </AccessGate>
-    );
-}
-
-// Componente de Tarjeta de Recurso
-function ResourceCard({ icon, title, subtitle, color, onClick }: { icon: React.ReactNode, title: string, subtitle: string, color: string, onClick: () => void }) {
-    const colorClasses: { [key: string]: string } = {
-        indigo: 'hover:border-indigo-200 hover:shadow-indigo-100',
-        violet: 'hover:border-violet-200 hover:shadow-violet-100',
-        emerald: 'hover:border-emerald-200 hover:shadow-emerald-100',
-        amber: 'hover:border-amber-200 hover:shadow-amber-100',
-        pink: 'hover:border-pink-200 hover:shadow-pink-100',
-        cyan: 'hover:border-cyan-200 hover:shadow-cyan-100',
-    };
-
-    return (
-        <div
-            onClick={onClick}
-            className={`bg-white p-6 rounded-2xl border border-slate-100 shadow-sm transition-all duration-300 group cursor-pointer ${colorClasses[color] || 'hover:border-gray-200'}`}
-        >
-            <div className="flex items-start justify-between mb-4">
-                <div className="p-3 bg-slate-50 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                    {icon}
-                </div>
-                <button className="text-xs font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-full group-hover:bg-slate-900 group-hover:text-white transition-colors">
-                    Abrir
-                </button>
-            </div>
-            <h3 className="font-bold text-slate-800 mb-1 group-hover:text-slate-900 transition-colors">{title}</h3>
-            <p className="text-sm text-slate-500">{subtitle}</p>
-        </div>
     );
 }
