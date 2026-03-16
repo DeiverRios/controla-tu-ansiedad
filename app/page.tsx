@@ -131,9 +131,15 @@ export default function LandingPage() {
               "Mapa de Reconstrucción de Confianza",
               "Guía Anti-Pensamientos Rumiativos",
               "Checklist de Estilo de Vida Calmo",
-              "Acceso Vitalicio a Actualizaciones"
-            ].map((item, idx) => (
-              <div key={idx} className="flex items-center gap-3 bg-gray-800 p-4 rounded-lg border border-gray-700 hover:border-[#4CAF50] transition-colors">
+              "Acceso Vitalicio a Actualizaciones",
+              "Anclaje Sensorial Háptico (Vibración)"
+            ].map((item, idx, arr) => (
+              <div 
+                key={idx} 
+                className={`flex items-center gap-3 bg-gray-800 p-4 rounded-lg border border-gray-700 hover:border-[#4CAF50] transition-colors ${
+                  idx === arr.length - 1 && arr.length % 2 !== 0 ? 'md:col-span-2' : ''
+                }`}
+              >
                 <CheckCircle2 className="text-[#4CAF50] w-5 h-5 flex-shrink-0" />
                 <span className="font-medium">{item}</span>
               </div>
