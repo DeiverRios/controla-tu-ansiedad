@@ -13,9 +13,23 @@ import {
     Users,
     X,
     HeartPulse,
-    Save
+    Save,
+    Activity
 } from "lucide-react";
 import AccessGate from "@/components/AccessGate";
+
+// --- UTILIDADES ---
+const triggerHeartbeatVibration = (pattern: number[] = [200, 100, 200, 1000]) => {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        navigator.vibrate(pattern);
+    }
+};
+
+const stopVibration = () => {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+        navigator.vibrate(0);
+    }
+};
 
 // --- CONTENIDO DE LA BÓVEDA ---
 const vaultContent: { [key: string]: React.ReactNode } = {
@@ -199,6 +213,24 @@ const BreathingTool = ({ onClose }: { onClose: () => void }) => {
     const [cycleTimer, setCycleTimer] = useState(4); // Timer interno del ciclo
     const [text, setText] = useState('Inhala');
     const [totalTimeLeft, setTotalTimeLeft] = useState(180); // 3 minutos
+    const [syncVibration, setSyncVibration] = useState(false);
+
+    // Efecto de Vibración
+    useEffect(() => {
+        let heartTimer: NodeJS.Timeout;
+        if (syncVibration && phase !== 'finished') {
+            triggerHeartbeatVibration();
+            heartTimer = setInterval(() => {
+                triggerHeartbeatVibration();
+            }, 1500);
+        } else {
+            stopVibration();
+        }
+        return () => {
+            clearInterval(heartTimer);
+            stopVibration();
+        };
+    }, [syncVibration, phase]);
 
     // Efecto del Timer Global (3 min)
     useEffect(() => {
@@ -268,8 +300,19 @@ const BreathingTool = ({ onClose }: { onClose: () => void }) => {
 
             <h2 className="text-3xl font-bold mb-4 text-blue-100">Respiración 4-7-8</h2>
 
-            <div className="mb-8 px-4 py-1 bg-blue-800/50 rounded-full font-mono text-xl tracking-wider text-blue-200">
+            <div className="mb-4 px-4 py-1 bg-blue-800/50 rounded-full font-mono text-xl tracking-wider text-blue-200">
                 {formatTime(totalTimeLeft)}
+            </div>
+
+            <div className="mb-8 z-10 transition-all">
+                <button 
+                  onClick={() => setSyncVibration(!syncVibration)}
+                  disabled={phase === 'finished'}
+                  className={`px-5 py-2 rounded-full text-sm font-semibold transition-all flex items-center justify-center gap-2 ${syncVibration ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30' : 'bg-white/10 text-blue-200 hover:bg-white/20 backdrop-blur-md border border-white/10 opacity-90'} ${phase === 'finished' ? 'opacity-50 cursor-not-allowed hidden' : ''}`}
+                >
+                    <HeartPulse className={`w-4 h-4 ${syncVibration ? 'animate-pulse' : ''}`} />
+                    {syncVibration ? 'Vibración Activada' : 'Sincronizar con Vibración (Latido Guía)'}
+                </button>
             </div>
 
             <div className="relative flex items-center justify-center mb-12">
@@ -405,6 +448,10 @@ export default function Dashboard() {
     const [userName, setUserName] = useState<string | null>(null);
     const [journalText, setJournalText] = useState('');
 
+    // --- ESTADOS DE VIBRACIÓN Y UI ---
+    const [isVibrating, setIsVibrating] = useState(false);
+    const vibrationIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
     // --- ESTADOS DE UI (MODALES) ---
     const [showSOS, setShowSOS] = useState(false);
     const [showBreathing, setShowBreathing] = useState(false);
@@ -438,6 +485,29 @@ export default function Dashboard() {
             }
         }
     }, []);
+
+    // Limpieza de vibración al salir
+    useEffect(() => {
+        return () => {
+            if (vibrationIntervalRef.current) clearInterval(vibrationIntervalRef.current);
+            stopVibration();
+        };
+    }, []);
+
+    // Lógica Vibración
+    const toggleContinuousVibration = () => {
+        if (isVibrating) {
+            if (vibrationIntervalRef.current) clearInterval(vibrationIntervalRef.current);
+            stopVibration();
+            setIsVibrating(false);
+        } else {
+            triggerHeartbeatVibration();
+            vibrationIntervalRef.current = setInterval(() => {
+                triggerHeartbeatVibration();
+            }, 1500);
+            setIsVibrating(true);
+        }
+    };
 
     // --- LÓGICA DE NEGOCIO ---
     const calculateDays = (dateString: string) => {
@@ -535,7 +605,7 @@ export default function Dashboard() {
                     </section>
 
                     {/* 2. HERRAMIENTAS DE EMERGENCIA */}
-                    <section className="grid md:grid-cols-2 gap-6">
+                    <section className="grid md:grid-cols-3 gap-6">
                         {/* Botón SOS */}
                         <button
                             onClick={() => setShowSOS(true)}
@@ -567,6 +637,25 @@ export default function Dashboard() {
                                 </span>
                                 <h3 className="text-2xl font-bold text-sky-900 mb-2">Respiración Guiada</h3>
                                 <p className="text-sky-700/80">Bajar revoluciones en 3 min.</p>
+                            </div>
+                        </button>
+
+                        {/* Botón Anclaje Táctil */}
+                        <button
+                            onClick={toggleContinuousVibration}
+                            className={`group relative overflow-hidden p-8 rounded-3xl shadow-sm hover:shadow-md transition-all border text-left ${isVibrating ? 'bg-indigo-100 hover:bg-indigo-200 border-indigo-300' : 'bg-indigo-50 hover:bg-indigo-100 border-indigo-100'}`}
+                        >
+                            <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <Activity size={120} className="text-indigo-500" />
+                            </div>
+                            <div className="relative z-10">
+                                <span className="inline-block bg-white p-3 rounded-2xl shadow-sm mb-4">
+                                    <Activity className={`text-indigo-500 w-8 h-8 ${isVibrating ? 'animate-pulse text-indigo-700' : ''}`} />
+                                </span>
+                                <h3 className="text-2xl font-bold text-indigo-900 mb-2">
+                                    {isVibrating ? 'Detener Vibración' : 'Anclaje Táctil (Vibración)'}
+                                </h3>
+                                <p className="text-indigo-700/80">Latido calmado para reconectar.</p>
                             </div>
                         </button>
                     </section>
